@@ -16,42 +16,48 @@ The overall navigation pipeline is:
 
 **Occupancy Grid Map → A* Path Planning → B-Spline Smoothing → MPC Tracking → Robot Motion**
 
-## 2. System Architecture
+## 2. Demo
+
+The following animation demonstrates the robot navigation process.
+
+![Robot Navigation Demo](docs/images/navigation_demo.gif)
+
+## 3. System Architecture
 
 The navigation system consists of three main modules: A* global path planning, B-spline path smoothing, and MPC trajectory tracking.
 
 ### Navigation Pipeline
 
 ```text
-        Occupancy Grid Map
-                |
-                v
-        +----------------+
-        | A* Path Planner|
-        +----------------+
-                |
-                | /astar_path
-                v
-        +----------------+
-        | B-Spline       |
-        | Smoother       |
-        +----------------+
-                |
-                | /bspline_path
-                v
-        +----------------+
-        | MPC Controller |
-        +----------------+
-                |
-                | /cmd_vel
-                v
-        +----------------+
-        | Mobile Robot   |
-        +----------------+
-                |
-                | /odom
-                v
-        MPC Feedback
+       Occupancy Grid Map
+               |
+               v
+       +----------------+
+       | A* Path Planner|
+       +----------------+
+               |
+               | /astar_path
+               v
+       +----------------+
+       | B-Spline       |
+       | Smoother       |
+       +----------------+
+               |
+               | /bspline_path
+               v
+       +----------------+
+       | MPC Controller |
+       +----------------+
+               |
+               | /cmd_vel
+               v
+       +----------------+
+       | Mobile Robot   |
+       +----------------+
+               |
+               | /odom
+               v
+         MPC Feedback
 ```
 
 ### Module Description
@@ -61,7 +67,7 @@ The navigation system consists of three main modules: A* global path planning, B
 - **MPC Trajectory Tracking:** Uses the reference path and robot odometry to calculate velocity commands.
 - **Closed-Loop Control:** Uses odometry feedback to update control commands and improve path tracking.
 
-## 3. Main Features
+## 4. Main Features
 
 - **Global Path Planning:** Uses the A* algorithm to search for a path on an occupancy grid map.
 - **Path Smoothing:** Uses B-spline curves to smooth the global path.
@@ -70,7 +76,25 @@ The navigation system consists of three main modules: A* global path planning, B
 - **Map Support:** Uses an occupancy grid map for static-environment path planning.
 - **Modular Design:** Separates global planning, path smoothing, and motion control into independent modules.
 
-## 4. ROS 2 Topics
+## 5. Path Planning and Smoothing
+
+The A* algorithm generates a global path on the occupancy grid map. B-spline smoothing then improves the path continuity for subsequent trajectory tracking.
+
+![A* and B-spline Path Comparison](docs/images/astar_bspline_comparison.png)
+
+## 6. Simulation Environment
+
+The project uses a simulated mobile robot environment for navigation development and testing.
+
+![Gazebo Simulation Environment](docs/images/gazebo_environment.png)
+
+## 7. MPC Path Tracking
+
+The MPC controller calculates linear and angular velocity commands based on the reference path and robot odometry.
+
+![MPC Path Tracking](docs/images/mpc_tracking.png)
+
+## 8. ROS 2 Topics
 
 The navigation modules communicate through ROS 2 topics.
 
@@ -81,12 +105,18 @@ The navigation modules communicate through ROS 2 topics.
 | `/odom` | `nav_msgs/Odometry` | Robot odometry information |
 | `/cmd_vel` | `geometry_msgs/Twist` | Linear and angular velocity commands |
 
-*Note: Verify the topic names and message types against the actual node implementations before using this table as a definitive interface specification.*
+*Note: Verify topic names and message types against the actual node implementations.*
 
-## 5. Project Structure
+## 9. Project Structure
 
 ```text
 Differential-Drive-Robot-Navigation/
+├── docs/
+│   └── images/
+│       ├── navigation_demo.gif
+│       ├── astar_bspline_comparison.png
+│       ├── gazebo_environment.png
+│       └── mpc_tracking.png
 ├── maps/
 │   ├── agv_map.pgm
 │   └── agv_map.yaml
@@ -105,38 +135,34 @@ Differential-Drive-Robot-Navigation/
 └── README.md
 ```
 
-*Note: This is a simplified overview. The actual repository may contain additional package configuration files and dependencies.*
+*Note: This is a simplified overview. The repository may contain additional package configuration files and dependencies.*
 
-## 6. Development Environment
-
-The project development environment includes:
+## 10. Development Environment
 
 - **Operating System:** Ubuntu 24.04
 - **ROS Distribution:** ROS 2 Jazzy
 - **Programming Language:** Python
 - **Visualization Tool:** RViz2
-- **Simulation Environment:** Gazebo
+- **Simulation Environment:** Gazebo Sim
 
-## 7. Installation
+## 11. Installation
 
-### 7.1 Clone the Repository
+### 11.1 Clone the Repository
 
 ```bash
 git clone https://github.com/hyx10-10/Differential-Drive-Robot-Navigation.git
 cd Differential-Drive-Robot-Navigation
 ```
 
-### 7.2 Source ROS 2
+### 11.2 Source ROS 2
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
 
-### 7.3 Install Dependencies
+### 11.3 Install Dependencies
 
-Install the dependencies required by the ROS 2 packages.
-
-For example, if `rosdep` is installed and the package manifests declare their dependencies, run:
+If `rosdep` is installed and the package manifests declare the required dependencies, run:
 
 ```bash
 sudo apt update
@@ -144,9 +170,9 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-The repository may require additional packages or simulation resources that are not included in this repository.
+Additional dependencies or simulation resources may be required depending on the local environment.
 
-### 7.4 Build the Workspace
+### 11.4 Build the Workspace
 
 From the workspace root, run:
 
@@ -154,15 +180,15 @@ From the workspace root, run:
 colcon build --packages-select agv_navigation agv_controller --symlink-install
 ```
 
-### 7.5 Source the Workspace
+### 11.5 Source the Workspace
 
 ```bash
 source install/setup.bash
 ```
 
-**Note:** These instructions describe the general build process. The exact dependencies and runtime commands should be verified against the package configuration files and launch setup.
+*Note: The exact runtime commands and dependencies should be verified against the package configuration files and launch setup.*
 
-## 8. Map
+## 12. Map
 
 The project includes an occupancy grid map for global path planning.
 
@@ -173,7 +199,7 @@ The project includes an occupancy grid map for global path planning.
 
 The A* planner uses the occupancy grid map to search for a path from the start position to the goal while considering occupied cells.
 
-## 9. Current Development Status
+## 13. Current Development Status
 
 The project focuses on integrating global path planning, path smoothing, and trajectory tracking into a ROS 2 navigation pipeline.
 
@@ -187,38 +213,22 @@ Current development areas include:
 
 Further testing is needed to evaluate the complete navigation pipeline and quantify its performance.
 
-## 10. Future Work
+## 14. Future Work
 
 Planned improvements include:
 
 - [ ] Improve obstacle handling and obstacle inflation.
 - [ ] Evaluate path length and smoothness.
 - [ ] Measure MPC trajectory-tracking error.
-- [ ] Compare the original A* path with the smoothed path.
-- [ ] Add simulation screenshots and demonstration videos.
+- [ ] Compare the original A* path with the smoothed path quantitatively.
 - [ ] Simplify installation and launch procedures.
 - [ ] Explore dynamic obstacle avoidance.
 - [ ] Evaluate navigation performance in different environments.
 
-## 11. Demonstration
-
-Visual demonstrations will be added after the navigation pipeline has been tested and verified.
-
-### Planned Demonstrations
-
-- RViz2 visualization of the occupancy grid map and planned paths.
-- Comparison between A* and B-spline paths.
-- Robot navigation in simulation.
-- MPC reference-path tracking results.
-
-### Screenshots
-
-Screenshots and videos will be added here as the project develops.
-
-## 12. Author
+## 15. Author
 
 **GitHub:** [hyx10-10](https://github.com/hyx10-10)
 
-## 13. License
+## 16. License
 
 No license has been added to this repository yet.
